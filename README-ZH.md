@@ -11,6 +11,9 @@
 [qq0groupsvg]: https://img.shields.io/badge/QQ%E7%BE%A4-787381170-yellowgreen.svg
 [qq0group]: https://jq.qq.com/?_wv=1027&k=5HPYvQk
 
+
+📘[特性](#features) |🌁[快速启动](#quick-start) | 🏖[性能测试](#performance-test) | 🌈[更新记录](#changelog) | 💡 [联系作者](#contact-author)|🇦🇺[English](https://github.com/TogetherOS/cicada)
+
 </div><br>
 
 
@@ -27,7 +30,7 @@
 - [x] 自定义拦截器。
 - [x] 灵活的传参方式。
 - [x] `json` 响应格式。
-- [ ] 自定义配置。
+- [x] 自定义配置。
 - [ ] 多种路由风格。
 - [ ] `HTTPS` 支持。
 - [ ] `Cookie` 支持。
@@ -42,7 +45,7 @@
 <dependency>
     <groupId>top.crossoverjie.opensource</groupId>
     <artifactId>cicada-core</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -100,6 +103,64 @@ public class DemoAction implements WorkAction {
 }
 ```
 
+## 自定义配置
+
+`cicada` 默认会读取 classpath 下的 `application.properties` 配置文件。
+
+同时也可以自定义配置文件。
+
+只需要继承 `top.crossoverjie.cicada.server.configuration.AbstractCicadaConfiguration`
+
+并传入配置文件名称即可。比如：
+
+
+```java
+public class RedisConfiguration extends AbstractCicadaConfiguration {
+
+
+    public RedisConfiguration() {
+        super.setPropertiesName("redis.properties");
+    }
+
+}
+
+public class KafkaConfiguration extends AbstractCicadaConfiguration {
+
+    public KafkaConfiguration() {
+        super.setPropertiesName("kafka.properties");
+    }
+
+
+}
+```
+
+![](https://ws3.sinaimg.cn/large/0069RVTdgy1fv5mw7p5nvj31by0fo76t.jpg)
+
+### 获取配置
+
+按照如下方式即可获取自定义配置：
+
+```java
+KafkaConfiguration configuration = (KafkaConfiguration) getConfiguration(KafkaConfiguration.class);
+RedisConfiguration redisConfiguration = (RedisConfiguration) ConfigurationHolder.getConfiguration(RedisConfiguration.class);
+ApplicationConfiguration applicationConfiguration = (ApplicationConfiguration) ConfigurationHolder.getConfiguration(ApplicationConfiguration.class);
+
+String brokerList = configuration.get("kafka.broker.list");
+String redisHost = redisConfiguration.get("redis.host");
+String port = applicationConfiguration.get("cicada.port");
+
+LOGGER.info("Configuration brokerList=[{}],redisHost=[{}] port=[{}]",brokerList,redisHost,port);
+```
+
+### 外置配置文件
+
+当然在特殊环境中(`dev/test/pro`)也可以读取外置配置文件。只需要加上启动参数，保证参数名称和文件名一致即可。
+
+```shell
+-Dapplication.properties=/xx/application.properties
+-Dkafka.properties=/xx/kakfa.properties
+-Dredis.properties=/xx/redis.properties
+```
 
 ## 自定义拦截器
 
@@ -149,9 +210,20 @@ public class LoggerInterceptorAbstract extends AbstractCicadaInterceptorAdapter 
 
 ## 性能测试
 
-![](https://ws3.sinaimg.cn/large/006tNbRwly1fuvheff4smj317m0mgdhs.jpg)
+![](https://ws4.sinaimg.cn/large/006tNbRwly1fv4luap7w0j31kw0iwdnu.jpg)
 
-> 测试条件：300 并发连续压测两轮；1G 内存、单核 CPU、1Mbps。
+> 测试条件：100 threads and 100 connections ;1G RAM/4 CPU。
+
+**每秒将近 10W 请求。**
+
+## 更新记录
+
+### v1.0.2
+
+- 修复 [#6](https://github.com/TogetherOS/cicada/issues/6)
+- 自定义配置文件。
+- 灵活使用配置。
+- 重构代码。
 
 ## 联系作者
 
